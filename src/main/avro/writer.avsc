@@ -1,0 +1,26 @@
+{
+  "type": "record",
+  "name": "WriterSchema",
+  "namespace": "com.example.schemas",
+  "fields": [
+    {
+      "name": "nickname",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "surname",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "rating",
+      "type": ["null", "double"],
+      "default": null
+    }
+  ]
+}

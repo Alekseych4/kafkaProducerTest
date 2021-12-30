@@ -1,0 +1,26 @@
+{
+  "type": "record",
+  "name": "ArticleSchema",
+  "namespace": "com.example.schemas",
+  "fields": [
+    {
+      "name": "uniqueArticleName",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "writerNickname",
+      "type": "string"
+    },
+    {
+      "name": "articleTitle",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "text",
+      "type": ["null", "string"],
+      "default": null
+    }
+  ]
+}

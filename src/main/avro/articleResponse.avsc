@@ -1,0 +1,47 @@
+{
+  "type": "record",
+  "name": "ArticleResponseSchema",
+  "namespace": "com.example.schemas",
+  "fields": [
+    {
+      "name": "article",
+      "type": {
+        "type": "record",
+        "name": "ArticleSchema",
+        "namespace": "com.example.schemas",
+        "fields": [
+          {
+            "name": "uniqueArticleName",
+            "type": "string"
+          },
+          {
+            "name": "writerNickname",
+            "type": "string"
+          },
+          {
+            "name": "articleTitle",
+            "type": ["null", "string"],
+            "default": null
+          },
+          {
+            "name": "text",
+            "type": ["null", "string"],
+            "default": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "charactersWithSpaces",
+      "type": "int"
+    },
+    {
+      "name": "words",
+      "type": "int"
+    },
+    {
+      "name": "spaces",
+      "type": "int"
+    }
+  ]
+}
