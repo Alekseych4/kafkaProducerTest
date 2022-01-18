@@ -19,7 +19,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
+import org.springframework.kafka.config.KafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -27,8 +30,9 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@KafkaListener(groupId = "writerResponseProcessor",
-        topicPartitions = {@TopicPartition(topic = "writer_response_topic", partitions = {"0"})},
+@KafkaListener(
+        groupId = "writerResponseProcessor",
+        topics = {"writer_response_topic"},
         containerFactory = "writerListenerContainerFactory")
 public class WriterServiceImpl implements WriterService {
     @Value("${topic.writer-topic}")
@@ -53,18 +57,16 @@ public class WriterServiceImpl implements WriterService {
         var convertedWriter = conversionService.convert(writerDto, WriterSchema.class);
         try {
             var res = kafkaTemplate.send(generatorTopic, convertedWriter).get();
-            logger.info(res.getProducerRecord().toString());
-            logger.info(res.getRecordMetadata().toString());
+            logger.info("----------------SEND MSG--------------------");
+            logger.info("topic: " + res.getRecordMetadata().topic());
+            logger.info("partition: " + res.getRecordMetadata().partition());
+            logger.info("data: " + res.getProducerRecord().toString());
+            logger.info("offset: " + res.getRecordMetadata().offset());
         } catch (ExecutionException | InterruptedException e) {
-            logger.error(e.getMessage());
+            logger.error("ERROR while sending msg to Kafka: ", e);
             throw new ProducerException("Writer producer couldn't send schema with cause: \n" + e.getMessage());
         }
-//                .addCallback(result -> {
-//                    logger.info(result.getRecordMetadata().toString());
-//                    logger.info(result.toString());
-//                }, ex -> {
-//                    logger.error(ex.getMessage());
-//                });
+        logger.info("---------------------------------------------");
     }
 
     @Override
@@ -76,10 +78,10 @@ public class WriterServiceImpl implements WriterService {
 
     @KafkaHandler
     public void consumeWriterResult(WriterResponseSchema record) {
-        logger.info("namespace: " + record.getSchema().getNamespace());
-        logger.info("record.value(): " + record.toString());
-        logger.info("record.value().getSchema(): " + record.getSchema());
-
+        logger.info("--------------------------Writer KafkaHandler----------------------------");
+        logger.info("@KafkaHandler record.toString: " + record.toString());
+        logger.info("group.id: " + KafkaUtils.getConsumerGroupId());
+        logger.info("------------------------------------------------------------------------");
         saveResponse(record);
     }
 

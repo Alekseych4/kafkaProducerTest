@@ -20,6 +20,7 @@ import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -27,8 +28,9 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
-@KafkaListener(groupId = "articleResponseProcessor",
-        topicPartitions = {@TopicPartition(topic = "article_response_topic", partitions = {"0"})},
+@KafkaListener(
+        groupId = "articleResponseProcessor",
+        topics = {"article_response_topic"},
         containerFactory = "articleListenerContainerFactory")
 public class ArticleServiceImpl implements ArticleService {
     @Value("${topic.article-topic}")
@@ -53,12 +55,16 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleSchema articleSchema = conversionService.convert(articleDto, ArticleSchema.class);
         try {
             var res = kafkaTemplate.send(generatorTopic, articleSchema).get();
-            logger.info(res.getProducerRecord().toString());
-            logger.info(res.getRecordMetadata().toString());
+            logger.info("----------------SEND MSG--------------------");
+            logger.info("topic: " + res.getRecordMetadata().topic());
+            logger.info("partition: " + res.getRecordMetadata().partition());
+            logger.info("data: " + res.getProducerRecord().toString());
+            logger.info("offset: " + res.getRecordMetadata().offset());
         } catch (ExecutionException | InterruptedException e) {
-            logger.error(e.getMessage());
+            logger.error("ERROR while sending msg to KafkaConsumer: ", e);
             throw new ProducerException("Article producer couldn't send schema with cause: \n" + e.getMessage());
         }
+        logger.info("---------------------------------------------");
     }
 
     @Override
@@ -71,8 +77,10 @@ public class ArticleServiceImpl implements ArticleService {
 
     @KafkaHandler
     public void consumeResponseArticle(ArticleResponseSchema record) {
-        logger.info("namespace: " + record.getSchema().getNamespace());
-        logger.info(record.toString());
+        logger.info("--------------------------Article KafkaHandler---------------------------");
+        logger.info("@KafkaHandler record.toString: " + record.toString());
+        logger.info("group.id: " + KafkaUtils.getConsumerGroupId());
+        logger.info("------------------------------------------------------------------------");
         save(record);
     }
 

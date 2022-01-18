@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "producer-helm-config.fullname" . }}
+  labels:
+    {{- include "producer-helm-config.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "producer-helm-config.selectorLabels" . | nindent 4 }}
+  ports:
+    - port: 8443
+      targetPort: 8443
+      nodePort: 32001
+      protocol: TCP
+      name: producer

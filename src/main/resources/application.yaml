@@ -2,11 +2,11 @@ server:
   port: 8443
 spring:
   kafka:
-    bootstrap-servers: 10.98.93.182:9092
+    bootstrap-servers: 10.100.208.65:9092
   redis:
     password: Avaya123
     port: 6379
-    host: 10.97.194.0
+    host: 10.100.20.171
 topic:
   writer-topic: writer_generator_topic
   article-topic: article_generator_topic
@@ -14,4 +14,4 @@ topic:
   writer-response-topic: writer_response_topic
   schema:
     registry:
-      url: http://10.99.193.248:8081
+      url: http://10.99.85.211:8081

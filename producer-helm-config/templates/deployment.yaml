@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "producer-helm-config.fullname" . }}
+  labels:
+    {{- include "producer-helm-config.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "producer-helm-config.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "producer-helm-config.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: producer
+              containerPort: {{ .Values.spriingProducer.port }}
+              protocol: TCP
+{{/*          livenessProbe:*/}}
+{{/*            initialDelaySeconds: 10*/}}
+{{/*            periodSeconds: 20*/}}
+{{/*            httpGet:*/}}
+{{/*              path: /isAlive*/}}
+{{/*              port: http*/}}
+{{/*          readinessProbe:*/}}
+{{/*            initialDelaySeconds: 6*/}}
+{{/*            httpGet:*/}}
+{{/*              path: /isAlive*/}}
+{{/*              port: http*/}}
+{{/*          resources:*/}}
+{{/*            {{- toYaml .Values.resources | nindent 12 }}*/}}
+{{/*      {{- with .Values.nodeSelector }}*/}}
+{{/*      nodeSelector:*/}}
+{{/*        {{- toYaml . | nindent 8 }}*/}}
+{{/*      {{- end }}*/}}
+{{/*      {{- with .Values.affinity }}*/}}
+{{/*      affinity:*/}}
+{{/*        {{- toYaml . | nindent 8 }}*/}}
+{{/*      {{- end }}*/}}
+{{/*      {{- with .Values.tolerations }}*/}}
+{{/*      tolerations:*/}}
+{{/*        {{- toYaml . | nindent 8 }}*/}}
+{{/*      {{- end }}*/}}
